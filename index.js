@@ -1,35 +1,28 @@
 const simpleGit = require("simple-git");
 const jsonfile = require("jsonfile");
-const { format, subDays, addWeeks } = require("date-fns"); // Importer les fonctions nécessaires de date-fns
+const { format, subDays, addWeeks } = require("date-fns");
 const FILE_PATH = "C:/Users/MSI/aymengithub7/Hack_Github_Contribution_Graph-/data.json";
 
-// Fonction pour générer un nombre entier aléatoire entre min et max
+// Function to generate a random integer between min and max
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-// Une fonction pour faire un commit
+// A function to make a commit
 const makeCommit = n => {
-  if (n === 0) return simpleGit().push('origin', 'main', (err) => {
-      if (err) {
-        console.error("Error pushing to origin main:", err);
-      } else {
-        console.log("Changes pushed to origin main successfully.");
-      }
-    }); // Si aucun commit à faire, pousser les changements
+  if (n <= 0) return; // If no commits are left to make, exit
 
-  // Nombre de semaines et de jours
-  const x = randomInt(-5, -1);  // Choix de semaines entre -5 et -1
-  const y = randomInt(-50, -20); // Choix de jours entre -50 et -20
+  // Generate random weeks and days
+  const x = randomInt(-5, -1);  // Weeks between -5 and -1
+  const y = randomInt(-50, -20); // Days between -50 and -20
 
-  // Calcul de la date du commit
-  const commitDate = addWeeks(subDays(new Date(),-2), x);
+  // Calculate the commit date
+  const commitDate = addWeeks(subDays(new Date(), 2), x);
   const finalCommitDate = subDays(commitDate, -y);
-
   const formattedDate = format(finalCommitDate, "yyyy-MM-dd'T'HH:mm:ssxxx");
   const date = { date: formattedDate };
 
-  console.log(date); // Afficher la date pour vérification
+  console.log(date); // Log the date for verification
 
-  // Lire le fichier data.json et écrire la date du commit
+  // Write to data.json and commit
   jsonfile.writeFile(FILE_PATH, date, err => {
     if (err) {
       console.error("Error writing to file:", err); // Log any errors
@@ -37,9 +30,21 @@ const makeCommit = n => {
     }
     simpleGit()
       .add(FILE_PATH)
-      .commit(`Commit on ${formattedDate}`, { '--date': formattedDate }, makeCommit.bind(this, --n));
+      .commit(`Commit on ${formattedDate}`, { '--date': formattedDate })
+      .then(() => {
+        // After a successful commit, push to the remote repository
+        return simpleGit().push('origin', 'main');
+      })
+      .then(() => {
+        console.log(`Changes pushed to origin main successfully for commit on ${formattedDate}.`);
+        // Proceed to the next commit
+        makeCommit(n - 1);
+      })
+      .catch(err => {
+        console.error("Error during commit or push:", err); // Log errors
+      });
   });
 };
 
-// Exemple d'appel à makeCommit avec un nombre de commits à effectuer
-makeCommit(100);
+// Example call to makeCommit with a number of commits to perform
+makeCommit(10);
