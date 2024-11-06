@@ -1,6 +1,6 @@
 ## Hack_Github_Contribution_Graph (JavaScript Edition)
 
-A Node.js tool that allows you to customize your GitHub contribution graph by automating commit creation on specific dates.
+A js tool that allows you to customize your GitHub contribution graph by automating commit creation on specific dates.
 Using this project, you can create custom designs on your GitHub profile, modifying your contribution history to showcase unique patterns or images.
 
 ## Features:
